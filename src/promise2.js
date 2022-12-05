@@ -4,7 +4,7 @@ const FULFILLED = 'FULFILLED'
 const REJECTED = 'REJECTED'
 class Promise{
     constructor(executor) {
-        this.status = PENDING       // promise 默认的状态
+        this.status = PENDING
         this.value = undefined
         this.reason = undefined
 
@@ -12,9 +12,9 @@ class Promise{
         this.onRejectedCallbacks = []   // 存放失败的回调方法
 
         const resolve = (value) => {
-            if (this.status === PENDING) {  // 只有等待状态的时候才执行
+            if (this.status === PENDING) {
                 this.value = value
-                this.status = FULFILLED     // 修改状态
+                this.status = FULFILLED
                 
                 // 发布
                 this.onResolvedCallbacks.forEach(fn => fn())
@@ -22,16 +22,16 @@ class Promise{
             }
         }
         const reject = (reason) => {
-            if (this.status === PENDING) {  // 只有等待状态的时候才执行
+            if (this.status === PENDING) {
                 this.reason = reason
-                this.status = REJECTED      // 修改状态
+                this.status = REJECTED
 
                 // 发布
                 this.onRejectedCallbacks.forEach(fn => fn())
 
             }
         }
-        try {                           //  executor 本身有可能执行会报错，所以 try catch 一下
+        try {
             executor(resolve, reject)
         } catch (error) {
             reject(error)
@@ -53,10 +53,10 @@ class Promise{
         }
 
         if (this.status === FULFILLED) {
-            onFulfilled(this.value)         // 成功调用成功方法
+            onFulfilled(this.value)
         }
         if (this.status === REJECTED) {
-            onRejected(this.reason)         // 失败调用失败方法
+            onRejected(this.reason)
         }
     }
 }
