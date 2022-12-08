@@ -1,51 +1,43 @@
 
+// 实现 Promise 的链式调用,考虑返回值为普通值的情况
+
 const PENDING = 'PENDING'
 const FULFILLED = 'FULFILLED'
 const REJECTED = 'REJECTED'
 class Promise{
     constructor(executor) {
-        this.status = PENDING       // promise 默认的状态
+        this.status = PENDING
         this.value = undefined
         this.reason = undefined
-
-        this.onResolvedCallbacks = []   // 存放成功的回调方法
-        this.onRejectedCallbacks = []   // 存放失败的回调方法
-
+        this.onResolvedCallbacks = []
+        this.onRejectedCallbacks = []
         const resolve = (value) => {
-            if (this.status === PENDING) {  // 只有等待状态的时候才执行
+            if (this.status === PENDING) {
                 this.value = value
-                this.status = FULFILLED     // 修改状态
-                
-                // 发布
+                this.status = FULFILLED
                 this.onResolvedCallbacks.forEach(fn => fn())
-
             }
         }
         const reject = (reason) => {
-            if (this.status === PENDING) {  // 只有等待状态的时候才执行
+            if (this.status === PENDING) {
                 this.reason = reason
-                this.status = REJECTED      // 修改状态
-
-                // 发布
+                this.status = REJECTED
                 this.onRejectedCallbacks.forEach(fn => fn())
-
             }
         }
-        try {                           //  executor 本身有可能执行会报错，所以 try catch 一下
+        try {
             executor(resolve, reject)
         } catch (error) {
             reject(error)
         }
     }
     then(onFulfilled, onRejected) {
-
-        // 返回新的promise, 实现链式调用
+        
+        // 返回新的 promise,实现链式调用
         let promise2 = new Promise((resolve, reject) => {
-            // 先订阅，存到数组中，resolve/reject 的时候再发布，去执行数组中的方法
+
             if(this.status === PENDING) {
-                // this.onResolvedCallbacks.push(onFulfilled)
-                this.onResolvedCallbacks.push(() => {   // 注意这么写和上面注释的写法的区别，这里相当于扩展了，除了执行onFulfilled外，我还可以做其他操作
-                    // do something
+                this.onResolvedCallbacks.push(() => {
 
                     try {
                         // 把上一个promise的then中成功的执行结果传到下一个then的成功处理函数中(递归的感觉)
@@ -58,24 +50,25 @@ class Promise{
                     
                 })
                 this.onRejectedCallbacks.push(() => {
-                    // do something
-
+                    
                     try {
                         let x = onRejected(this.reason)
                         resolve(x)
                     } catch (error) {
                         reject(error)
                     }
+
                 })
             }
-
             if (this.status === FULFILLED) {
+
                 try {
-                    let x = onFulfilled(this.value)         // 成功调用成功方法
+                    let x = onFulfilled(this.value)
                     resolve(x)
                 } catch (error) {
                     reject(error)
                 }
+
             }
             if (this.status === REJECTED) {
                 try {
